@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>BigTrak Simulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0; /* If you want to reduce default margin/padding on mobile */
+    }
+
+    h1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    /* Add a max-width and max-height to keep #field from overflowing on small screens */
+    #field {
+      width: 500px;
+      height: 500px;
+      max-width: 90vw;
+      max-height: 90vw;
+      background: white;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid lightblue;
+      background-image:
+        linear-gradient(to right, lightblue 1px, transparent 1px),
+        linear-gradient(to bottom, lightblue 1px, transparent 1px);
+      background-size: 10px 10px;
+      box-sizing: border-box;
+    }
+
+    /* BigTrak container (centered via translate(-50%, -50%)) */
+    #bigtrak {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      inset: 0;  /* Centers it automatically */
+      margin: auto;
+      transform-origin: center;
+    }
+
+    /* The trapezoid - short side on top */
+    #bigtrak-body {
+      position: absolute;
+      width: 40px;
+      height: 50px;
+      background: blue;
+      top: 5px;
+      left: 10px;
+      clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+    }
+
+    /* The cannon, centered inside the trapezoid */
+    #bigtrak-cannon {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 20px solid red;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Fire effect */
+    .firing #bigtrak-cannon {
+      border-bottom-color: yellow;
+    }
+
+    /* Indicator light */
+    #indicator {
+      width: 20px;
+      height: 20px;
+      background: red; /* Default color red */
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Control panel */
+    #control-panel {
+      display: grid;
+      grid-template-columns: repeat(4, 60px);
+      gap: 5px;
+      justify-content: center;
+    }
+
+    .btn {
+      width: 60px;
+      height: 40px;
+      font-size: 16px;
+      cursor: pointer;
+      border: 2px solid black;
+      background: lightgray;
+      transition: transform 0.1s;
+    }
+
+    /* Press effect for all buttons */
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    .reset-btn {
+      border-radius: 20px;
+      width: auto;
+      padding: 5px 15px;
+      font-size: 18px;
+    }
+
+    .empty {
+      background: transparent;
+      border: none;
+      pointer-events: none;
+    }
+
+    /* Optional FIRE flash effect */
+    .fire-flash {
+      animation: flash 0.3s ease-in-out;
+    }
+    @keyframes flash {
+      0% { border-bottom-color: red; }
+      100% { border-bottom-color: blue; }
+    }
+
+    /*
+      Media query: For portrait orientation or smaller screens,
+      stack the field and control panel vertically.
+    */
+    @media (orientation: portrait), (max-width: 600px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+<h1>
+  BigTrak Simulator
+  <button class="btn reset-btn" onclick="resetPosition()">RESET</button>
+</h1>
+
+<div class="container">
+  <div id="field">
+    <!-- The BigTrak container -->
+    <div id="bigtrak">
+      <!-- The trapezoid body -->
+      <div id="bigtrak-body"></div>
+      <!-- The triangle cannon -->
+      <div id="bigtrak-cannon"></div>
+    </div>
+  </div>
+
+  <div>
+    <div id="control-panel">
+      <!-- Row 1 -->
+      <div id="indicator"></div>
+      <button class="btn" onclick="setCommand('F')">▲</button>
+      <button class="btn empty"></button>
+      <button class="btn" onclick="clearAllCommands()">CLR</button>
+
+      <!-- Row 2 -->
+      <button class="btn" onclick="setCommand('L')">◄</button>
+      <button class="btn" onclick="setCommand('H')">HOLD</button>
+      <button class="btn" onclick="setCommand('R')">►</button>
+      <button class="btn" onclick="setCommand('FIRE')">FIRE</button>
+
+      <!-- Row 3 -->
+      <button class="btn empty"></button>
+      <button class="btn" onclick="setCommand('B')">▼</button>
+      <button class="btn empty"></button>
+      <button class="btn" onclick="clsCommand()">CLS</button>
+
+      <!-- Row 4 -->
+      <button class="btn" onclick="setNumber(7)">7</button>
+      <button class="btn" onclick="setNumber(8)">8</button>
+      <button class="btn" onclick="setNumber(9)">9</button>
+      <button class="btn" onclick="setCommand('RPT')">RPT</button>
+
+      <!-- Row 5 -->
+      <button class="btn" onclick="setNumber(4)">4</button>
+      <button class="btn" onclick="setNumber(5)">5</button>
+      <button class="btn" onclick="setNumber(6)">6</button>
+      <button class="btn empty"></button>
+
+      <!-- Row 6 -->
+      <button class="btn" onclick="setNumber(1)">1</button>
+      <button class="btn" onclick="setNumber(2)">2</button>
+      <button class="btn" onclick="setNumber(3)">3</button>
+      <button class="btn" onclick="checkLastCommand()">CK</button>
+
+      <!-- Row 7 -->
+      <button class="btn empty"></button>
+      <button class="btn" onclick="setNumber(0)">0</button>
+      <button class="btn empty"></button>
+      <button class="btn" onclick="executeCommands()">GO</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let commands = [];            // Stores { command: 'F', value: number } objects
+  let currentCommand = null;    // The command being built (e.g., 'F', 'HOLD', etc.)
+  let currentValue = "";        // The digits entered for the current command
+  const maxCommands = 16;       // BigTrak memory limit
+
+  // BigTrak's state
+  const bigtrak = document.getElementById('bigtrak');
+  const unitLength = 1;         // Each forward/back unit -> 2px movement
+  let x, y, angle;              // Set in resetPosition()
+
+  // -----------------------------------
+  //  Helper to flash the indicator green
+  // -----------------------------------
+  function flashIndicatorGreen() {
+    const indicator = document.getElementById("indicator");
+    indicator.style.backgroundColor = "green";
+    setTimeout(() => {
+      indicator.style.backgroundColor = "red";
+    }, 200);
+  }
+
+  // ----------------------
+  // Command Entry
+  // ----------------------
+  function setCommand(command) {
+    // If memory is already full, this press is invalid
+    if (commands.length >= maxCommands) return;
+
+    // If user was in the middle of typing a command + number, save it
+    if (currentCommand && currentValue !== "") {
+      saveCurrentCommand();
+      // After saving, if memory got full, stop
+      if (commands.length >= maxCommands) return;
+    }
+
+    currentCommand = command;
+    currentValue = "";
+    flashIndicatorGreen(); // Valid keypress
+  }
+
+  function setNumber(num) {
+    // If no currentCommand has been selected yet, it's invalid
+    if (!currentCommand) return;
+
+    // If we already have 2 digits, ignore (invalid)
+    if (currentValue.length >= 2) return;
+
+    currentValue += num;
+    flashIndicatorGreen(); // Valid digit press
+  }
+
+  function saveCurrentCommand() {
+    let value = parseInt(currentValue, 10);
+    if (isNaN(value)) value = 0; // Default 0 if no number
+
+    // Only add if there's still room
+    if (commands.length < maxCommands) {
+      commands.push({ command: currentCommand, value });
+    }
+    // Reset
+    currentCommand = null;
+    currentValue = "";
+  }
+
+  // ----------------------
+  // Auxiliary Commands
+  // ----------------------
+  function clsCommand() {
+    // CLS: remove the most recently entered instruction
+    if (currentCommand && currentValue !== "") {
+      // The user is typing a command but hasn't stored it — reset
+      currentCommand = null;
+      currentValue = "";
+    } else if (commands.length > 0) {
+      commands.pop();
+    }
+  }
+
+  function checkLastCommand() {
+    // CK: check the most recent instruction by executing it in isolation
+    if (currentCommand && currentValue !== "") {
+      saveCurrentCommand();
+    }
+    if (commands.length === 0) return;
+    const lastCmd = commands[commands.length - 1];
+    runSingleCommand(lastCmd);
+  }
+
+  function clearAllCommands() {
+    commands = [];
+    currentCommand = null;
+    currentValue = "";
+  }
+
+  // ----------------------
+  // Execution
+  // ----------------------
+  function executeCommands() {
+    // If user still has a half-typed command, store it
+    if (currentCommand && currentValue !== "") {
+      saveCurrentCommand();
+    }
+
+    let index = 0;
+
+    function runNext() {
+      if (index >= commands.length) return; // Done
+      const cmd = commands[index];
+      if (cmd.command === 'RPT') {
+        // RPT expands the command list in-place
+        const repeatCount = cmd.value;
+        const startIndex = Math.max(0, index - repeatCount);
+        const segment = commands.slice(startIndex, index);
+
+        // Remove the RPT command
+        commands.splice(index, 1);
+        // Insert repeated commands
+        commands.splice(index, 0, ...segment);
+        runNext(); // run again at the same index
+      } else {
+        // Normal command
+        runSingleCommand(cmd, () => {
+          index++;
+          runNext();
+        });
+      }
+    }
+
+    runNext();
+  }
+
+  // Runs a single command, then calls an optional callback when done
+  function runSingleCommand(cmd, callback) {
+    switch (cmd.command) {
+      case 'F':
+        moveForward(cmd.value, callback);
+        break;
+      case 'B':
+        moveBackward(cmd.value, callback);
+        break;
+      case 'L':
+        angle -= cmd.value * 6;
+        updatePosition();
+        setTimeout(() => callback && callback(), 500);
+        break;
+      case 'R':
+        angle += cmd.value * 6;
+        updatePosition();
+        setTimeout(() => callback && callback(), 500);
+        break;
+      case 'H':
+        // HOLD for 0.1s per unit
+        const holdTime = cmd.value * 100;
+        setTimeout(() => callback && callback(), holdTime);
+        break;
+      case 'FIRE':
+        fireMultipleTimes(cmd.value, callback);
+        break;
+      default:
+        // Unknown or no-op
+        if (callback) callback();
+    }
+  }
+
+  // ----------------------
+  // Movement Helpers
+  // ----------------------
+  function moveForward(units, callback) {
+    const radians = (angle * Math.PI) / 180;
+    x += units * Math.sin(radians) * unitLength;
+    y -= units * Math.cos(radians) * unitLength;
+    updatePosition();
+    setTimeout(() => callback && callback(), 500);
+  }
+
+  function moveBackward(units, callback) {
+    const radians = (angle * Math.PI) / 180;
+    x -= units * Math.sin(radians) * unitLength;
+    y += units * Math.cos(radians) * unitLength;
+    updatePosition();
+    setTimeout(() => callback && callback(), 500);
+  }
+
+  function updatePosition() {
+    // Reposition and rotate the BigTrak
+    bigtrak.style.transform = `translate(${x - 250}px, ${y - 250}px) rotate(${angle}deg)`;
+  }
+
+  // ----------------------
+  // Fire Effect (multiple)
+  // ----------------------
+  function fireEffect() {
+    bigtrak.classList.add("firing");
+    setTimeout(() => {
+      bigtrak.classList.remove("firing");
+    }, 100);
+  }
+
+  function fireMultipleTimes(times, callback) {
+    // Default to 1 if no number was set
+    let count = (times && times > 0) ? times : 1;
+    let i = 0;
+
+    function doFire() {
+      fireEffect();
+      i++;
+      if (i < count) {
+        // Fire again after a short delay
+        setTimeout(doFire, 500);
+      } else {
+        // Done firing
+        setTimeout(() => callback && callback(), 500);
+      }
+    }
+    doFire();
+  }
+
+  // ----------------------
+  // Reset
+  // ----------------------
+  function resetPosition() {
+    x = 250;
+    y = 250;
+    angle = 0;       // Start facing "up"
+    clearAllCommands();
+    updatePosition();
+  }
+
+  // Initialize on load
+  resetPosition();
+</script>
+</body>
+</html>
