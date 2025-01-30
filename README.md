@@ -9,7 +9,7 @@ The simulator is inspired by the **instructionless learning paradigm** used in p
 
 In such studies, participants were given a BigTrak without instructions and observed as they **explored, discovered commands, and formed mental models** of how it worked.  
 
-This digital version replicates **BigTrak’s original command system** so students can try it themselves, experience **discovery-based learning**, and understand how people infer the rules of complex devices through exploration.  
+This digital version replicates **BigTrak’s original command system** so students can try it themselves, and understand how people infer the rules of complex devices through exploration.  
 
 ## How the BigTrak Works 🚗  
 BigTrak operates by **programming a sequence of up to 16 commands**, each consisting of:  
@@ -58,4 +58,4 @@ GO
 
 
 ## Try It Out! 🎮  
-[Click here to run the simulator](#)  
+[Click here to run the simulator]([#](https://dcatar.github.io/bigtrak/))  
