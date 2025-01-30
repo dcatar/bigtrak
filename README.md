@@ -55,7 +55,7 @@ HOLD 50
 FIRE 2
 RPT 3
 GO
-
+```
 
 ## Try It Out! 🎮  
-[Click here to run the simulator]([#](https://dcatar.github.io/bigtrak/))  
+[Click here to run the simulator](https://dcatar.github.io/bigtrak/)  
