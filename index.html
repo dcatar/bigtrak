@@ -23,43 +23,51 @@
     }
 
     /*
-      The outer container that holds
-      1) field-container
-      2) control panel
+      Outer container for the three columns:
+      1) Notepad
+      2) Field
+      3) Control panel
     */
     .container {
       display: flex;
-      flex-wrap: wrap;       /* allow wrapping on narrow screens */
       align-items: flex-start;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 20px;
-      max-width: 1100px;     /* enough room for 500px field + panel side by side */
-      margin: 0 auto;        /* center the entire row in the viewport */
-      padding: 0 10px;       /* small horizontal padding so items aren’t flush against edges */
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 10px;
+      flex-wrap: wrap; /* still allows wrapping on narrow screens if needed */
+    }
+
+    /* Notepad: same height as the field, scrollable */
+    #notepad-container {
+      width: 300px;         /* or any width you prefer */
+      height: 500px;        /* match the field’s 500px height */
+      box-sizing: border-box;
+      flex: 0 0 auto;       /* fixed size, not flexible */
+    }
+    #notepad {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      overflow-y: auto;     /* scroll within this area */
     }
 
     /*
-      The scaling field container
-      – no longer forced to 100% wide on desktops –
-      so the control panel can sit to its side.
+      Field is fixed at 500px width x 500px height
+      (so it no longer uses aspect-ratio).
     */
     .field-container {
-      flex: 0 0 auto;        /* don’t stretch */
-      width: 100%;           /* 100% of the *available* space, up to max 500px */
-      max-width: 500px;
-      aspect-ratio: 1 / 1;
+      flex: 0 0 auto;
+      width: 500px;
+      height: 500px;
       position: relative;
       border: 5px solid #666;
       background-color: sandybrown;
       box-sizing: border-box;
       overflow: hidden;
-      margin: 0;             /* no extra margin, so it sits directly next to the panel */
+      margin: 0;
     }
-
-    /*
-      The actual 500×500 logic field.
-      We’ll scale this visually so collisions etc. stay consistent with 500-pixel coordinates.
-    */
     #field {
       width: 500px;
       height: 500px;
@@ -67,7 +75,6 @@
       top: 0;
       left: 0;
       transform-origin: top left;
-      /* transform is set dynamically by JS in 'scaleField()' */
     }
 
     /* BigTrak container */
@@ -171,20 +178,21 @@
       background: #666;
     }
 
-    /* Control Panel */
+    /* Control Panel – we give it a fixed width. */
+    #control-panel {
+      width: 240px;
+      display: grid;
+      grid-template-columns: repeat(4, 60px);
+      gap: 5px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
     #indicator {
       width: 20px;
       height: 20px;
       background: red;
       border-radius: 50%;
       display: inline-block;
-    }
-    #control-panel {
-      display: grid;
-      grid-template-columns: repeat(4, 60px);
-      gap: 5px;
-      justify-content: center;
-      margin-bottom: 20px;
     }
     .btn {
       width: 60px;
@@ -243,500 +251,559 @@
 </head>
 <body>
 
-<h1>
-  BigTrak - Simulator
-  <button class="btn reset-btn" onclick="resetPosition()">RESET</button>
-</h1>
+  <h1>
+    BigTrak - Simulator
+    <button class="btn reset-btn" onclick="resetPosition()">RESET</button>
+  </h1>
 
-<div class="container">
-  <!-- Scaled field container -->
-  <div class="field-container">
-    <div id="field">
-      <div id="bigtrak">
-        <div class="bigtrak-track" id="bigtrak-track-left"></div>
-        <div class="bigtrak-track" id="bigtrak-track-right"></div>
-        <div id="bigtrak-shell">
-          <div class="stripe red" id="stripe-left-red"></div>
-          <div class="stripe yellow" id="stripe-left-yellow"></div>
-          <div class="stripe red" id="stripe-right-red"></div>
-          <div class="stripe yellow" id="stripe-right-yellow"></div>
-          <div id="bigtrak-dome">
-            <div id="bigtrak-laser"></div>
-          </div>
-          <div id="bigtrak-keypad">
-            <div class="key"></div>
-            <div class="key"></div>
-            <div class="key"></div>
-            <div class="key"></div>
+  <div class="container">
+    <!-- 1) NOTEPAD (same height as field, scrollable) -->
+    <div id="notepad-container">
+      <textarea id="notepad"></textarea>
+    </div>
+
+    <!-- 2) Field (500×500) -->
+    <div class="field-container">
+      <div id="field">
+        <div id="bigtrak">
+          <div class="bigtrak-track" id="bigtrak-track-left"></div>
+          <div class="bigtrak-track" id="bigtrak-track-right"></div>
+          <div id="bigtrak-shell">
+            <div class="stripe red" id="stripe-left-red"></div>
+            <div class="stripe yellow" id="stripe-left-yellow"></div>
+            <div class="stripe red" id="stripe-right-red"></div>
+            <div class="stripe yellow" id="stripe-right-yellow"></div>
+            <div id="bigtrak-dome">
+              <div id="bigtrak-laser"></div>
+            </div>
+            <div id="bigtrak-keypad">
+              <div class="key"></div>
+              <div class="key"></div>
+              <div class="key"></div>
+              <div class="key"></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Control Panel, now side by side on desktops -->
-  <div>
-    <div id="control-panel">
-      <!-- Row 1 -->
-      <div id="indicator"></div>
-      <button class="btn" onclick="setCommand('F')">▲</button>
-      <button class="btn empty"></button>
-      <button class="btn" onclick="clearAllCommands()">CLR</button>
+    <!-- 3) Control Panel (fixed width) -->
+    <div>
+      <div id="control-panel">
+        <!-- Row 1 -->
+        <div id="indicator"></div>
+        <button class="btn" onclick="setCommand('F')">▲</button>
+        <button class="btn empty"></button>
+        <button class="btn" onclick="clearAllCommands()">CLR</button>
 
-      <!-- Row 2 -->
-      <button class="btn" onclick="setCommand('L')">◄</button>
-      <button class="btn" id="holdBtn">HOLD</button>
-      <button class="btn" onclick="setCommand('R')">►</button>
-      <button class="btn" onclick="setCommand('FIRE')">FIRE</button>
+        <!-- Row 2 -->
+        <button class="btn" onclick="setCommand('L')">◄</button>
+        <button class="btn" id="holdBtn">HOLD</button>
+        <button class="btn" onclick="setCommand('R')">►</button>
+        <button class="btn" onclick="setCommand('FIRE')">FIRE</button>
 
-      <!-- Row 3 -->
-      <button class="btn empty"></button>
-      <button class="btn" onclick="setCommand('B')">▼</button>
-      <button class="btn empty"></button>
-      <button class="btn" onclick="clsCommand()">CLS</button>
+        <!-- Row 3 -->
+        <button class="btn empty"></button>
+        <button class="btn" onclick="setCommand('B')">▼</button>
+        <button class="btn empty"></button>
+        <button class="btn" onclick="clsCommand()">CLS</button>
 
-      <!-- Row 4 -->
-      <button class="btn" onclick="setNumber(7)">7</button>
-      <button class="btn" onclick="setNumber(8)">8</button>
-      <button class="btn" onclick="setNumber(9)">9</button>
-      <button class="btn" onclick="setCommand('RPT')">RPT</button>
+        <!-- Row 4 -->
+        <button class="btn" onclick="setNumber(7)">7</button>
+        <button class="btn" onclick="setNumber(8)">8</button>
+        <button class="btn" onclick="setNumber(9)">9</button>
+        <button class="btn" onclick="setCommand('RPT')">RPT</button>
 
-      <!-- Row 5 -->
-      <button class="btn" onclick="setNumber(4)">4</button>
-      <button class="btn" onclick="setNumber(5)">5</button>
-      <button class="btn" onclick="setNumber(6)">6</button>
-      <button class="btn empty"></button>
+        <!-- Row 5 -->
+        <button class="btn" onclick="setNumber(4)">4</button>
+        <button class="btn" onclick="setNumber(5)">5</button>
+        <button class="btn" onclick="setNumber(6)">6</button>
+        <button class="btn empty"></button>
 
-      <!-- Row 6 -->
-      <button class="btn" onclick="setNumber(1)">1</button>
-      <button class="btn" onclick="setNumber(2)">2</button>
-      <button class="btn" onclick="setNumber(3)">3</button>
-      <button class="btn" onclick="checkLastCommand()">CK</button>
+        <!-- Row 6 -->
+        <button class="btn" onclick="setNumber(1)">1</button>
+        <button class="btn" onclick="setNumber(2)">2</button>
+        <button class="btn" onclick="setNumber(3)">3</button>
+        <button class="btn" onclick="checkLastCommand()">CK</button>
 
-      <!-- Row 7 -->
-      <button class="btn empty"></button>
-      <button class="btn" onclick="setNumber(0)">0</button>
-      <button class="btn empty"></button>
-      <button class="btn" onclick="executeCommands()">GO</button>
+        <!-- Row 7 -->
+        <button class="btn empty"></button>
+        <button class="btn" onclick="setNumber(0)">0</button>
+        <button class="btn empty"></button>
+        <button class="btn" onclick="executeCommands()">GO</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-  /*
-    (Unchanged) Your existing JS for BigTrak logic and collision,
-    plus the scaling code below.
-  */
+  <script>
+    /*
+      Existing BigTrak logic — with short delays in movement/turn.
+    */
+    let objectsEnabled = false;
+    const BIGTRAK_RADIUS = 45;
+    const FIELD_SIZE = 500;
+    const unitLength = 5;
+    const maxCommands = 16;
 
-  let objectsEnabled = false;
-  const BIGTRAK_RADIUS = 45;
-  const FIELD_SIZE = 500;
-  const unitLength = 5;
-  const maxCommands = 16;
+    let x, y, angle;
+    let commands = [];
+    let currentCommand = null;
+    let currentValue = "";
 
-  let x, y, angle;
-  let commands = [];
-  let currentCommand = null;
-  let currentValue = "";
+    const bigtrak = document.getElementById('bigtrak');
+    const holdBtn = document.getElementById("holdBtn");
 
-  const bigtrak = document.getElementById('bigtrak');
-  const holdBtn = document.getElementById("holdBtn");
+    let obstacles = [];
+    let targets = [];
 
-  let obstacles = [];
-  let targets = [];
+    resetPosition();
 
-  resetPosition();
+    function initGameElements() {
+      const field = document.getElementById('field');
+      if (!objectsEnabled) return;
+      obstacles = [
+        {x: 60, y: 60, w: 80, h: 40},
+        {x: 60, y: 60, w: 40, h: 80},
+        {x: 130, y: 240, w: 20, h: 100},
+        {x: 300, y: 300, w: 200, h: 20},
+        {x: 250, y: 150, w: 140, h: 20},
+        {x: 400, y: 400, w: 70, h: 20},
+        {x: 200, y: 400, w: 45, h: 30},
+        {x: 200, y: 400, w: 30, h: 80},
+        {x: 260, y: 400, w: 45, h: 30},
+        {x: 275, y: 400, w: 30, h: 80}
+      ];
+      obstacles.forEach((obs, i) => {
+        const div = document.createElement('div');
+        div.className = 'obstacle';
+        div.style.left = obs.x + 'px';
+        div.style.top = obs.y + 'px';
+        div.style.width = obs.w + 'px';
+        div.style.height = obs.h + 'px';
+        div.id = 'obstacle-' + i;
+        field.appendChild(div);
+      });
 
-  function initGameElements() {
-    const field = document.getElementById('field');
-    if (!objectsEnabled) return;
-    obstacles = [
-      {x: 60, y: 60, w: 80, h: 40},
-      {x: 60, y: 60, w: 40, h: 80},
-      {x: 130, y: 240, w: 20, h: 100},
-      {x: 300, y: 300, w: 200, h: 20},
-      {x: 250, y: 150, w: 140, h: 20},
-      {x: 400, y: 400, w: 70, h: 20},
-      {x: 200, y: 400, w: 45, h: 30},
-      {x: 200, y: 400, w: 30, h: 90},
-      {x: 260, y: 400, w: 45, h: 30},
-      {x: 275, y: 400, w: 30, h: 90}
-    ];
-    obstacles.forEach((obs, i) => {
-      const div = document.createElement('div');
-      div.className = 'obstacle';
-      div.style.left = obs.x + 'px';
-      div.style.top = obs.y + 'px';
-      div.style.width = obs.w + 'px';
-      div.style.height = obs.h + 'px';
-      div.id = 'obstacle-' + i;
-      field.appendChild(div);
-    });
-
-    targets = [
-      {x: 40, y: 40, r: 15, hp: 1},
-      {x: 300, y: 120, r: 15, hp: 3},
-      {x: 180, y: 320, r: 15, hp: 4},
-      {x: 80,  y: 250, r: 15, hp: 2},
-      {x: 400, y: 80,  r: 15, hp: 4},
-      {x: 400, y: 450, r: 15, hp: 8},
-      {x: 50,  y: 450, r: 15, hp: 6},
-      {x: 250, y: 465, r: 15, hp: 3}
-    ];
-    targets.forEach((tgt, i) => {
-      const div = document.createElement('div');
-      div.className = 'target';
-      div.style.left = (tgt.x - tgt.r) + 'px';
-      div.style.top = (tgt.y - tgt.r) + 'px';
-      div.id = 'target-' + i;
-      div.textContent = tgt.hp;
-      field.appendChild(div);
-    });
-  }
-
-  function setCommand(command) {
-    if (commands.length >= maxCommands) return;
-    if (currentCommand && currentValue !== "") {
-      saveCurrentCommand();
-      if (commands.length >= maxCommands) return;
-    }
-    currentCommand = command;
-    currentValue = "";
-    flashIndicatorGreen();
-  }
-
-  function setNumber(num) {
-    if (!currentCommand) return;
-    if (currentValue.length >= 2) return;
-    currentValue += num;
-    flashIndicatorGreen();
-  }
-
-  function saveCurrentCommand() {
-    let value = parseInt(currentValue, 10);
-    if (isNaN(value)) value = 0;
-    if (commands.length < maxCommands) {
-      commands.push({command: currentCommand, value});
-    }
-    currentCommand = null;
-    currentValue = "";
-  }
-
-  function clsCommand() {
-    if (currentCommand && currentValue !== "") {
-      currentCommand = null;
-      currentValue = "";
-    } else if (commands.length > 0) {
-      commands.pop();
-    }
-  }
-
-  function clearAllCommands() {
-    commands = [];
-    currentCommand = null;
-    currentValue = "";
-  }
-
-  function checkLastCommand() {
-    if (currentCommand && currentValue !== "") {
-      saveCurrentCommand();
-    }
-    if (commands.length === 0) return;
-    const lastCmd = commands[commands.length - 1];
-    runSingleCommand(lastCmd);
-  }
-
-  function executeCommands() {
-    if (currentCommand && currentValue !== "") {
-      saveCurrentCommand();
-    }
-    let index = 0;
-
-    function runNext() {
-      if (index >= commands.length) return;
-      const cmd = commands[index];
-      if (cmd.command === 'RPT') {
-        const repeatCount = cmd.value;
-        const startIndex = Math.max(0, index - repeatCount);
-        const segment = commands.slice(startIndex, index);
-        commands.splice(index, 1);
-        commands.splice(index, 0, ...segment);
-        runNext();
-      } else {
-        runSingleCommand(cmd, () => {
-          index++;
-          runNext();
-        });
-      }
-    }
-    runNext();
-  }
-
-  function runSingleCommand(cmd, callback) {
-    switch (cmd.command) {
-      case 'F':   moveForward(cmd.value, callback);       break;
-      case 'B':   moveBackward(cmd.value, callback);      break;
-      case 'L':   animateTurn(-cmd.value * 6, callback);  break;
-      case 'R':   animateTurn(cmd.value * 6, callback);   break;
-      case 'H':   setTimeout(() => callback && callback(), cmd.value * 100); break;
-      case 'FIRE':fireMultipleTimes(cmd.value, callback); break;
-      default:
-        if (callback) callback();
-    }
-  }
-
-  function moveForward(units, callback) {
-    const distance = units * unitLength;
-    animateMovement(distance, 'forward', callback);
-  }
-  function moveBackward(units, callback) {
-    const distance = units * unitLength;
-    animateMovement(distance, 'backward', callback);
-  }
-
-  function animateMovement(totalDistance, direction, callback) {
-    let moved = 0;
-    function step() {
-      if (moved >= totalDistance) {
-        if (callback) callback();
-        return;
-      }
-      const oldX = x;
-      const oldY = y;
-      const sign = (direction === 'forward') ? 1 : -1;
-      const rad = angle * Math.PI / 180;
-
-      x += sign * Math.sin(rad);
-      y -= sign * Math.cos(rad);
-
-      if (checkCollision(x, y)) {
-        x = oldX;
-        y = oldY;
-        if (callback) callback();
-        return;
-      }
-      updatePosition();
-      moved++;
-      setTimeout(step, 10);
-    }
-    step();
-  }
-
-  function animateTurn(angleDelta, callback) {
-    let steps = Math.abs(angleDelta);
-    const stepSign = angleDelta > 0 ? 1 : -1;
-    function stepRotate() {
-      if (steps <= 0) {
-        if (callback) callback();
-        return;
-      }
-      angle += stepSign;
-      updatePosition();
-      steps--;
-      setTimeout(stepRotate, 10);
-    }
-    stepRotate();
-  }
-
-  function checkCollision(newX, newY) {
-    if (newX < BIGTRAK_RADIUS || newX > FIELD_SIZE - BIGTRAK_RADIUS) {
-      return true;
-    }
-    if (newY < BIGTRAK_RADIUS || newY > FIELD_SIZE - BIGTRAK_RADIUS) {
-      return true;
-    }
-    for (let obs of obstacles) {
-      if (checkRectCircleCollision(newX, newY, BIGTRAK_RADIUS, obs)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function checkRectCircleCollision(cx, cy, r, obs) {
-    const closestX = clamp(cx, obs.x, obs.x + obs.w);
-    const closestY = clamp(cy, obs.y, obs.y + obs.h);
-    const distX = cx - closestX;
-    const distY = cy - closestY;
-    const distanceSq = distX * distX + distY * distY;
-    return distanceSq < (r * r);
-  }
-
-  function clamp(value, minVal, maxVal) {
-    return Math.max(minVal, Math.min(value, maxVal));
-  }
-
-  function fireMultipleTimes(times, callback) {
-    let count = (times && times > 0) ? times : 1;
-    let i = 0;
-    function doFire() {
-      fireEffect();
-      fireProjectile(() => {
-        i++;
-        if (i < count) {
-          setTimeout(doFire, 70);
-        } else {
-          if (callback) callback();
-        }
+      targets = [
+        {x: 40, y: 40, r: 15, hp: 1},
+        {x: 300, y: 120, r: 15, hp: 3},
+        {x: 180, y: 320, r: 15, hp: 4},
+        {x: 80,  y: 250, r: 15, hp: 2},
+        {x: 400, y: 80,  r: 15, hp: 4},
+        {x: 400, y: 450, r: 15, hp: 8},
+        {x: 50,  y: 450, r: 15, hp: 6},
+        {x: 250, y: 465, r: 15, hp: 3}
+      ];
+      targets.forEach((tgt, i) => {
+        const div = document.createElement('div');
+        div.className = 'target';
+        div.style.left = (tgt.x - tgt.r) + 'px';
+        div.style.top = (tgt.y - tgt.r) + 'px';
+        div.id = 'target-' + i;
+        div.textContent = tgt.hp;
+        field.appendChild(div);
       });
     }
-    doFire();
-  }
 
-  function fireEffect() {
-    bigtrak.classList.add("firing");
-    setTimeout(() => {
-      bigtrak.classList.remove("firing");
-    }, 100);
-  }
+    function setCommand(command) {
+      if (commands.length >= maxCommands) return;
+      if (currentCommand && currentValue !== "") {
+        saveCurrentCommand();
+        if (commands.length >= maxCommands) return;
+      }
+      currentCommand = command;
+      currentValue = "";
+      flashIndicatorGreen();
+    }
 
-  function fireProjectile(onDone) {
-    const field = document.getElementById('field');
-    const projectile = document.createElement('div');
-    projectile.className = 'projectile';
+    function setNumber(num) {
+      if (!currentCommand) return;
+      if (currentValue.length >= 2) return;
+      currentValue += num;
+      flashIndicatorGreen();
+    }
 
-    let px = x;
-    let py = y;
-    const angRad = angle * Math.PI / 180;
+    function saveCurrentCommand() {
+      let value = parseInt(currentValue, 10);
+      if (isNaN(value)) value = 0;
+      if (commands.length < maxCommands) {
+        commands.push({ command: currentCommand, value });
+      }
+      currentCommand = null;
+      currentValue = "";
+    }
 
-    projectile.style.left = (px - 3) + 'px';
-    projectile.style.top = (py - 3) + 'px';
-    field.appendChild(projectile);
+    function clsCommand() {
+      if (currentCommand && currentValue !== "") {
+        currentCommand = null;
+        currentValue = "";
+      } else if (commands.length > 0) {
+        commands.pop();
+      }
+    }
 
-    function step() {
-      const speed = 10;
-      px += speed * Math.sin(angRad);
-      py -= speed * Math.cos(angRad);
-      projectile.style.left = (px - 3) + 'px';
-      projectile.style.top = (py - 3) + 'px';
+    function clearAllCommands() {
+      commands = [];
+      currentCommand = null;
+      currentValue = "";
+    }
 
-      if (px < 0 || px > FIELD_SIZE || py < 0 || py > FIELD_SIZE) {
-        removeProjectile();
-        return;
+    function checkLastCommand() {
+      if (currentCommand && currentValue !== "") {
+        saveCurrentCommand();
+      }
+      if (commands.length === 0) return;
+      const lastCmd = commands[commands.length - 1];
+      runSingleCommand(lastCmd);
+    }
+
+    function executeCommands() {
+      if (currentCommand && currentValue !== "") {
+        saveCurrentCommand();
+      }
+      let index = 0;
+
+      function runNext() {
+        if (index >= commands.length) return;
+        const cmd = commands[index];
+        if (cmd.command === 'RPT') {
+          const repeatCount = cmd.value;
+          const startIndex = Math.max(0, index - repeatCount);
+          const segment = commands.slice(startIndex, index);
+          commands.splice(index, 1);
+          commands.splice(index, 0, ...segment);
+          runNext();
+        } else {
+          runSingleCommand(cmd, () => {
+            index++;
+            runNext();
+          });
+        }
+      }
+      runNext();
+    }
+
+    // Add short delay between each unit of movement/turn
+    function runSingleCommand(cmd, callback) {
+      switch (cmd.command) {
+        case 'F':   moveForward(cmd.value, callback);       break;
+        case 'B':   moveBackward(cmd.value, callback);      break;
+        case 'L':   animateTurn(-cmd.value * 6, callback);  break;
+        case 'R':   animateTurn(cmd.value * 6, callback);   break;
+        case 'H':   setTimeout(() => callback && callback(), cmd.value * 100); break;
+        case 'FIRE':fireMultipleTimes(cmd.value, callback); break;
+        default:
+          if (callback) callback();
+      }
+    }
+
+    function moveForward(units, callback) {
+      animateMovement(units, 'forward', callback);
+    }
+    function moveBackward(units, callback) {
+      animateMovement(units, 'backward', callback);
+    }
+
+    // Animate movement unit by unit, with a short pause after each unit
+    function animateMovement(units, direction, callback) {
+      let completedUnits = 0;
+
+      function doOneUnit() {
+        if (completedUnits >= units) {
+          if (callback) callback();
+          return;
+        }
+        // Move exactly one "unit" = 5 pixels, in small steps
+        let steps = unitLength;
+        let doneSteps = 0;
+
+        function stepPixels() {
+          if (doneSteps >= steps) {
+            completedUnits++;
+            // short delay between each unit
+            setTimeout(doOneUnit, 150);
+            return;
+          }
+          const oldX = x;
+          const oldY = y;
+          const sign = (direction === 'forward') ? 1 : -1;
+          const rad = angle * Math.PI / 180;
+
+          x += sign * Math.sin(rad);
+          y -= sign * Math.cos(rad);
+
+          if (checkCollision(x, y)) {
+            x = oldX;
+            y = oldY;
+            // Collision stops movement
+            if (callback) callback();
+            return;
+          }
+          updatePosition();
+          doneSteps++;
+          setTimeout(stepPixels, 10);
+        }
+        stepPixels();
+      }
+      doOneUnit();
+    }
+
+    // Animate turn step by step, short pause after each degree
+    function animateTurn(angleDelta, callback) {
+      let steps = Math.abs(angleDelta);
+      const stepSign = angleDelta > 0 ? 1 : -1;
+
+      function turnOneDegree() {
+        if (steps <= 0) {
+          if (callback) callback();
+          return;
+        }
+        angle += stepSign;
+        updatePosition();
+        steps--;
+        setTimeout(turnOneDegree, 50);
+      }
+      turnOneDegree();
+    }
+
+    function checkCollision(newX, newY) {
+      if (newX < BIGTRAK_RADIUS || newX > FIELD_SIZE - BIGTRAK_RADIUS) {
+        return true;
+      }
+      if (newY < BIGTRAK_RADIUS || newY > FIELD_SIZE - BIGTRAK_RADIUS) {
+        return true;
       }
       for (let obs of obstacles) {
-        if (checkRectCircleCollision(px, py, 3, obs)) {
+        if (checkRectCircleCollision(newX, newY, BIGTRAK_RADIUS, obs)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function checkRectCircleCollision(cx, cy, r, obs) {
+      const closestX = clamp(cx, obs.x, obs.x + obs.w);
+      const closestY = clamp(cy, obs.y, obs.y + obs.h);
+      const distX = cx - closestX;
+      const distY = cy - closestY;
+      const distanceSq = distX * distX + distY * distY;
+      return distanceSq < (r * r);
+    }
+
+    function clamp(value, minVal, maxVal) {
+      return Math.max(minVal, Math.min(value, maxVal));
+    }
+
+    function fireMultipleTimes(times, callback) {
+      let count = (times && times > 0) ? times : 1;
+      let i = 0;
+      function doFire() {
+        fireEffect();
+        fireProjectile(() => {
+          i++;
+          if (i < count) {
+            setTimeout(doFire, 70);
+          } else {
+            if (callback) callback();
+          }
+        });
+      }
+      doFire();
+    }
+
+    function fireEffect() {
+      bigtrak.classList.add("firing");
+      setTimeout(() => {
+        bigtrak.classList.remove("firing");
+      }, 100);
+    }
+
+    function fireProjectile(onDone) {
+      const field = document.getElementById('field');
+      const projectile = document.createElement('div');
+      projectile.className = 'projectile';
+
+      let px = x;
+      let py = y;
+      const angRad = angle * Math.PI / 180;
+
+      projectile.style.left = (px - 3) + 'px';
+      projectile.style.top = (py - 3) + 'px';
+      field.appendChild(projectile);
+
+      function step() {
+        const speed = 10;
+        px += speed * Math.sin(angRad);
+        py -= speed * Math.cos(angRad);
+        projectile.style.left = (px - 3) + 'px';
+        projectile.style.top = (py - 3) + 'px';
+
+        if (px < 0 || px > FIELD_SIZE || py < 0 || py > FIELD_SIZE) {
           removeProjectile();
           return;
         }
-      }
-      for (let i = 0; i < targets.length; i++) {
-        let tgt = targets[i];
-        if (tgt.hp > 0) {
-          if (distance(px, py, tgt.x, tgt.y) < (tgt.r + 3)) {
-            tgt.hp -= 1;
-            updateTargetHP(i);
+        for (let obs of obstacles) {
+          if (checkRectCircleCollision(px, py, 3, obs)) {
             removeProjectile();
             return;
           }
         }
+        for (let i = 0; i < targets.length; i++) {
+          let tgt = targets[i];
+          if (tgt.hp > 0) {
+            if (distance(px, py, tgt.x, tgt.y) < (tgt.r + 3)) {
+              tgt.hp -= 1;
+              updateTargetHP(i);
+              removeProjectile();
+              return;
+            }
+          }
+        }
+        requestAnimationFrame(step);
+      }
+      function removeProjectile() {
+        if (projectile.parentNode) {
+          projectile.parentNode.removeChild(projectile);
+        }
+        if (onDone) onDone();
       }
       requestAnimationFrame(step);
     }
-    function removeProjectile() {
-      if (projectile.parentNode) {
-        projectile.parentNode.removeChild(projectile);
+
+    function updateTargetHP(index) {
+      const tgt = targets[index];
+      const div = document.getElementById('target-' + index);
+      if (!div) return;
+      if (tgt.hp <= 0) {
+        div.parentNode.removeChild(div);
+      } else {
+        div.textContent = tgt.hp;
       }
-      if (onDone) onDone();
     }
-    requestAnimationFrame(step);
-  }
 
-  function updateTargetHP(index) {
-    const tgt = targets[index];
-    const div = document.getElementById('target-' + index);
-    if (!div) return;
-    if (tgt.hp <= 0) {
-      div.parentNode.removeChild(div);
-    } else {
-      div.textContent = tgt.hp;
+    function distance(x1, y1, x2, y2) {
+      return Math.sqrt((x2 - x1)**2 + (y2 - y1)**2);
     }
-  }
 
-  function distance(x1, y1, x2, y2) {
-    return Math.sqrt((x2 - x1)**2 + (y2 - y1)**2);
-  }
+    function updatePosition() {
+      bigtrak.style.transform =
+        `translate(${x - 27.5}px, ${y - 45}px) rotate(${angle}deg)`;
+    }
 
-  function updatePosition() {
-    bigtrak.style.transform =
-      `translate(${x - 27.5}px, ${y - 45}px) rotate(${angle}deg)`;
-  }
+    function resetPosition() {
+      clearField();
+      x = FIELD_SIZE / 2;
+      y = FIELD_SIZE / 2;
+      angle = 0;
+      clearAllCommands();
+      updatePosition();
+      initGameElements();
+    }
 
-  function resetPosition() {
-    clearField();
-    x = FIELD_SIZE / 2;
-    y = FIELD_SIZE / 2;
-    angle = 0;
-    clearAllCommands();
-    updatePosition();
-    initGameElements();
-  }
+    function clearField() {
+      obstacles = [];
+      targets = [];
+      const field = document.getElementById('field');
+      [...field.children].forEach(child => {
+        if (child.id !== 'bigtrak') {
+          field.removeChild(child);
+        }
+      });
+    }
 
-  function clearField() {
-    obstacles = [];
-    targets = [];
-    const field = document.getElementById('field');
-    [...field.children].forEach(child => {
-      if (child.id !== 'bigtrak') {
-        field.removeChild(child);
+    function flashIndicatorGreen() {
+      const indicator = document.getElementById("indicator");
+      indicator.style.backgroundColor = "green";
+      setTimeout(() => {
+        indicator.style.backgroundColor = "red";
+      }, 200);
+    }
+
+    function toggleObjects() {
+      objectsEnabled = !objectsEnabled;
+      resetPosition();
+    }
+
+    let holdTimer = null;
+    let toggleDone = false;
+
+    function startHold() {
+      toggleDone = false;
+      holdTimer = setTimeout(() => {
+        toggleObjects();
+        toggleDone = true;
+      }, 5000);
+    }
+    function endHold() {
+      clearTimeout(holdTimer);
+      if (!toggleDone) {
+        setCommand('H');
       }
+    }
+
+    holdBtn.addEventListener("mousedown", startHold);
+    holdBtn.addEventListener("mouseup", endHold);
+
+    holdBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      startHold();
     });
-  }
+    holdBtn.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      endHold();
+    });
 
-  function flashIndicatorGreen() {
-    const indicator = document.getElementById("indicator");
-    indicator.style.backgroundColor = "green";
-    setTimeout(() => {
-      indicator.style.backgroundColor = "red";
-    }, 200);
-  }
-
-  function toggleObjects() {
-    objectsEnabled = !objectsEnabled;
-    resetPosition();
-  }
-
-  let holdTimer = null;
-  let toggleDone = false;
-
-  function startHold() {
-    toggleDone = false;
-    holdTimer = setTimeout(() => {
-      toggleObjects();
-      toggleDone = true;
-    }, 5000);
-  }
-  function endHold() {
-    clearTimeout(holdTimer);
-    if (!toggleDone) {
-      setCommand('H');
+    // Scale the #field on load/resize so it always fits the .field-container
+    window.addEventListener("load", scaleField);
+    window.addEventListener("resize", scaleField);
+    function scaleField() {
+      const container = document.querySelector(".field-container");
+      const field = document.getElementById("field");
+      // Don’t scale up beyond 500, only shrink if needed
+      const containerWidth = container.clientWidth;
+      const scale = Math.min(containerWidth / 500, 1);
+      field.style.transform = `scale(${scale})`;
     }
-  }
+  </script>
 
-  holdBtn.addEventListener("mousedown", startHold);
-  holdBtn.addEventListener("mouseup", endHold);
+  <script>
+    /*
+      Notepad logic: capture button clicks + localStorage to preserve text.
+    */
+    const notepad = document.getElementById("notepad");
 
-  holdBtn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    startHold();
-  });
-  holdBtn.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    endHold();
-  });
+    // Load any saved text on page load
+    notepad.value = localStorage.getItem("notepadText") || "";
 
-  // Scale the #field on load/resize so it always fits the .field-container
-  window.addEventListener("load", scaleField);
-  window.addEventListener("resize", scaleField);
-  function scaleField() {
-    const container = document.querySelector(".field-container");
-    const field = document.getElementById("field");
-    const containerWidth = container.clientWidth;
-    // Don’t scale up beyond 500, only shrink if needed
-    const scale = Math.min(containerWidth / 500, 1);
-    field.style.transform = `scale(${scale})`;
-  }
-</script>
+    // Whenever the user types, save to localStorage
+    notepad.addEventListener("input", () => {
+      localStorage.setItem("notepadText", notepad.value);
+    });
+
+    let currentLine = "";
+
+    function handleButtonClick(e) {
+      const text = e.target.innerText.trim();
+      if (!text) return;
+
+      // If 'CLR' or 'GO' is clicked, finalize the line and start a new one
+      if (text === "CLR" || text === "GO") {
+        currentLine += (currentLine ? " " : "") + text;
+        notepad.value += currentLine + "\n";
+        localStorage.setItem("notepadText", notepad.value);
+        currentLine = "";
+      } else {
+        // Otherwise, append the button text (with a space if needed)
+        if (currentLine) currentLine += " ";
+        currentLine += text;
+      }
+    }
+
+    // Attach to each control button
+    document.querySelectorAll(".btn").forEach(btn => {
+      btn.addEventListener("click", handleButtonClick);
+    });
+  </script>
 
 </body>
 </html>
