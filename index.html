@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8"/>
   <title>BigTrak - Simulator</title>
@@ -7,264 +7,117 @@
 
   <style>
     /* Reset */
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
-
-    h1 {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin: 20px;
-      text-align: center;
-    }
+    html, body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    h1 { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 20px; text-align: center; }
 
     /* Instructions Panel */
     #instructions-panel {
-      max-width: 1100px;
-      margin: 0 auto 20px auto;
-      padding: 15px;
-      background-color: #f4f4f4;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
+      max-width: 1100px; margin: 0 auto 20px auto; padding: 15px;
+      background-color: #f4f4f4; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;
     }
-    #instructions-panel summary {
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1.1em;
-    }
-    #instructions-panel ul {
-      margin-top: 10px;
-      line-height: 1.5;
-    }
+    #instructions-panel summary { font-weight: bold; cursor: pointer; font-size: 1.1em; }
+    #instructions-panel p, #instructions-panel ul { margin-top: 10px; line-height: 1.5; }
 
     /* Layout Container */
     .container {
-      display: flex;
-      align-items: flex-start;
-      justify-content: flex-start;
-      gap: 20px;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 10px;
-      flex-wrap: wrap; 
+      display: flex; align-items: flex-start; justify-content: flex-start;
+      gap: 20px; max-width: 1100px; margin: 0 auto; padding: 0 10px; flex-wrap: wrap;
     }
 
     /* Notepad / Lab Notebook */
     #notepad-container {
-      width: 300px;         
-      height: 500px;        
-      box-sizing: border-box;
-      flex: 0 0 auto;       
-      display: flex;
-      flex-direction: column;
+      width: 300px; height: 500px; box-sizing: border-box; flex: 0 0 auto; display: flex; flex-direction: column;
     }
-    #notepad-container label {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
+    #notepad-container label { font-weight: bold; margin-bottom: 5px; }
     #notepad {
-      width: 100%;
-      height: 100%;
-      box-sizing: border-box;
-      overflow-y: auto;     
-      resize: none;
-      font-family: monospace;
-      padding: 10px;
+      width: 100%; height: 100%; box-sizing: border-box; overflow-y: auto; resize: none; font-family: monospace; padding: 10px;
     }
 
     /* Field container */
     .field-container {
-      flex: 0 0 auto;
-      width: 500px;
-      height: 500px;
-      position: relative;
-      border: 5px solid #666;
-      background-color: sandybrown;
-      box-sizing: border-box;
-      overflow: hidden;
-      margin: 0;
+      flex: 0 0 auto; width: 500px; height: 500px; position: relative;
+      border: 5px solid #666; background-color: sandybrown; box-sizing: border-box; overflow: hidden; margin: 0;
     }
-    #field {
-      width: 500px;
-      height: 500px;
-      position: absolute;
-      top: 0;
-      left: 0;
-      transform-origin: top left;
-    }
+    #field { width: 500px; height: 500px; position: absolute; top: 0; left: 0; transform-origin: top left; }
 
     /* BigTrak Visuals */
-    #bigtrak {
-      position: absolute;
-      width: 56px;
-      height: 90px;
-      transform-origin: center;
-    }
-    .bigtrak-track {
-      position: absolute;
-      width: 14px;
-      height: 70px;
-      background: #333;
-      border: 2px solid #666;
-      border-radius: 8px;
-      top: 10px;
-      z-index: 0;
-    }
-    #bigtrak-track-left { left: -4px; }
-    #bigtrak-track-right { right: -7px; }
+    #bigtrak { position: absolute; width: 56px; height: 90px; transform-origin: center; }
+    .bigtrak-track { position: absolute; width: 14px; height: 70px; background: #333; border: 2px solid #666; border-radius: 8px; top: 10px; z-index: 0; }
+    #bigtrak-track-left { left: -4px; } #bigtrak-track-right { right: -7px; }
 
     #bigtrak-shell {
-      position: absolute;
-      width: 56px;
-      height: 90px;
-      background: #eee;
-      border: 2px solid #666;
-      z-index: 1;
+      position: absolute; width: 56px; height: 90px; background: #eee; border: 2px solid #666; z-index: 1;
       clip-path: polygon(20% 0%, 80% 0%, 90% 15%, 90% 85%, 80% 100%, 20% 100%, 10% 85%, 10% 15%);
     }
-    .stripe {
-      position: absolute;
-      height: 70px;
-      top: 10px;
-      border-radius: 2px;
-      z-index: 2;
-    }
-    .stripe.red { width: 3px; background: red; }
-    .stripe.yellow { width: 3px; background: yellow; }
-    #stripe-left-red { left: 6px; }
-    #stripe-left-yellow { left: 10px; }
-    #stripe-right-red { right: 6px; }
-    #stripe-right-yellow { right: 10px; }
+    .stripe { position: absolute; height: 70px; top: 10px; border-radius: 2px; z-index: 2; }
+    .stripe.red { width: 3px; background: red; } .stripe.yellow { width: 3px; background: yellow; }
+    #stripe-left-red { left: 6px; } #stripe-left-yellow { left: 10px; }
+    #stripe-right-red { right: 6px; } #stripe-right-yellow { right: 10px; }
 
     #bigtrak-dome {
-      position: absolute;
-      width: 28px;
-      height: 28px;
-      background: #222;
-      border: 2px solid #333;
-      border-radius: 50%;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 2;
+      position: absolute; width: 28px; height: 28px; background: #222; border: 2px solid #333; border-radius: 50%;
+      top: 8px; left: 50%; transform: translateX(-50%); z-index: 2;
     }
     #bigtrak-laser {
-      position: absolute;
-      width: 0;
-      height: 0;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-top: 7px solid #444;
+      position: absolute; width: 0; height: 0; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #444;
     }
     .firing #bigtrak-laser { border-top-color: yellow; }
 
     #bigtrak-keypad {
-      position: absolute;
-      width: 25px;
-      height: 25px;
-      top: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: grid;
-      grid-template-columns: repeat(2, 12px);
-      grid-template-rows: repeat(2, 12px);
-      gap: 2px;
+      position: absolute; width: 25px; height: 25px; top: 50px; left: 50%; transform: translateX(-50%);
+      display: grid; grid-template-columns: repeat(2, 12px); grid-template-rows: repeat(2, 12px); gap: 2px;
     }
     .key { background: #666; }
 
     /* Control Panel Logic */
-    #action-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 240px;
-    }
+    #action-container { display: flex; flex-direction: column; align-items: center; width: 240px; }
     #control-panel {
-      width: 240px;
-      display: grid;
-      grid-template-columns: repeat(4, 60px);
-      gap: 5px;
-      justify-content: center;
-      margin-bottom: 20px;
+      width: 240px; display: grid; grid-template-columns: repeat(4, 60px); gap: 5px; justify-content: center; margin-bottom: 20px;
     }
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
-    #indicator {
-      width: 20px;
-      height: 20px;
-      background: red;
-      border-radius: 50%;
-      display: inline-block;
-    }
+    #indicator { width: 20px; height: 20px; background: red; border-radius: 50%; display: inline-block; }
     .btn {
-      width: 60px;
-      height: 40px;
-      font-size: 16px;
-      cursor: pointer;
-      border: 2px solid black;
-      background: lightgray;
-      transition: transform 0.1s;
+      width: 60px; height: 40px; font-size: 16px; cursor: pointer; border: 2px solid black; background: lightgray; transition: transform 0.1s;
     }
     .btn:active { transform: scale(0.95); }
-    .reset-btn {
-      border-radius: 20px;
-      width: auto;
-      padding: 5px 15px;
-      font-size: 18px;
-    }
+    .reset-btn { border-radius: 20px; width: auto; padding: 5px 15px; font-size: 18px; }
+
     .program-btn {
-      border-radius: 10px;
-      width: 100%;
-      padding: 15px;
-      font-size: 16px;
-      font-weight: bold;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-      margin-bottom: 20px;
+      border-radius: 10px; width: 100%; padding: 15px; font-size: 16px; font-weight: bold; background-color: #4CAF50; color: white; border: none; cursor: pointer; margin-bottom: 10px;
     }
-    .empty {
-      background: transparent;
-      border: none;
-      pointer-events: none;
-    }
+    .reflect-btn { background-color: #2196F3; margin-bottom: 20px; }
+
+    .empty { background: transparent; border: none; pointer-events: none; }
 
     /* Obstacles & Targets */
-    .obstacle {
-      position: absolute;
-      background-color: gray;
-      box-shadow: inset 0 0 5px #333;
-    }
+    .obstacle { position: absolute; background-color: gray; box-shadow: inset 0 0 5px #333; }
     .target {
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      background-color: green;
-      border: 2px solid #0f0;
-      border-radius: 50%;
-      text-align: center;
-      color: white;
-      line-height: 30px;
-      font-weight: bold;
+      position: absolute; width: 30px; height: 30px; background-color: green; border: 2px solid #0f0; border-radius: 50%;
+      text-align: center; color: white; line-height: 30px; font-weight: bold;
     }
-    .projectile {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      background-color: red;
-      border-radius: 50%;
+    .projectile { position: absolute; width: 6px; height: 6px; background-color: red; border-radius: 50%; }
+
+    /* Modal Overlay */
+    #modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000;
     }
+    #learning-modal {
+      background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;
+    }
+    #learning-modal h3 { margin-top: 0; }
+    #learning-modal textarea {
+      width: 100%; height: 80px; margin-bottom: 15px; padding: 10px;
+      box-sizing: border-box; font-family: Arial, sans-serif; resize: vertical;
+    }
+    .modal-btn {
+      padding: 10px 20px; border: none; background: #4CAF50; color: white;
+      font-size: 16px; border-radius: 5px; cursor: pointer;
+    }
+    .modal-btn.cancel { background: #f44336; margin-left: 10px; }
   </style>
 </head>
 <body>
@@ -275,24 +128,31 @@
   </h1>
 
   <details id="instructions-panel">
-    <summary>Task Description & Instructions</summary>
-    <p>Your goal is to deduce the underlying rules of the BigTrak, specifically focusing on how the <strong>RPT</strong> key functions. Plan your commands carefully and observe the resulting behavior to test your hypotheses.</p>
+    <summary>Aufgabenbeschreibung & Anleitung</summary>
+    <p>Der BigTrak ist ein programmierbares Spielzeugfahrzeug, das bis zu 16 Kommandos speichern und ausführen kann. Ein Kommando besteht aus einem Befehl und einem ein- bis zweistelligen Zahlenargument X. Beispielsweise bedeutet das Kommando “▲ 3”, fahre vorwärts um 3 Einheiten. Da könnte man jetzt zum Beispiel noch “◄ 15” und “FIRE 1” hinzufügen. Sobald die GO-Taste gedrückt wird, führt der BigTrak die gespeicherten Kommandos nacheinander aus. In diesem Fall würde er 3 Einheiten nach vorne fahren, 15 Einheiten (ca. 90°) nach links drehen und dann einmal seinen Laser abfeuern.</p>
+    <p><strong>Verfügbare Befehle:</strong></p>
     <ul>
-      <li><strong>▲ (Forward):</strong> Moves the device forward.</li>
-      <li><strong>▼ (Backward):</strong> Moves the device backward.</li>
-      <li><strong>◄ (Left):</strong> Rotates the device counter-clockwise.</li>
-      <li><strong>► (Right):</strong> Rotates the device clockwise.</li>
-      <li><strong>FIRE:</strong> Shoots a laser.</li>
-      <li><strong>HOLD:</strong> Pauses execution.</li>
-      <li><strong>CLR:</strong> Clears the current command entry.</li>
-      <li><strong>CLS:</strong> Clears the entire programmed sequence.</li>
-      <li><strong>RPT:</strong> Repeat function (Requires deduction).</li>
+      <li><strong>▲</strong> - Fährt vorwärts um X Einheiten.</li>
+      <li><strong>▼</strong> - Fährt rückwärts um X Einheiten.</li>
+      <li><strong>◄</strong> - Dreht sich nach links um X Einheiten (ca. 6° pro Einheit).</li>
+      <li><strong>►</strong> - Dreht sich nach rechts um X Einheiten (ca. 6° pro Einheit).</li>
+      <li><strong>HOLD</strong> - Wartet für X Einheiten.</li>
+      <li><strong>FIRE</strong> - Feuert X-mal den Laser.</li>
+      <li><strong>RPT</strong> - Beachten Sie diesen Knopf vorerst nicht, er ist in der nächsten Aufgabe relevant.</li>
+    </ul>
+    <p><strong>Neben den Befehlstasten gibt es noch zusätzliche Eingabetasten die keinen Zahleninput brauchen:</strong></p>
+    <ul>
+      <li><strong>GO</strong> - Führt die eingegebene Abfolge von Kommandos aus.</li>
+      <li><strong>CLR</strong> - Löscht alle gespeicherten Kommandos.</li>
+      <li><strong>CLS</strong> - Löscht das zuletzt eingegebene Kommando.</li>
+      <li><strong>CK</strong> - Führt das zuletzt eingegebene Kommando einmalig aus.</li>
+      <li><strong>RESET</strong> - Setzt den BigTrak auf seine Startposition zurück und löscht alle gespeicherten Kommandos.</li>
     </ul>
   </details>
 
   <div class="container">
     <div id="notepad-container">
-      <label for="notepad">Lab Notebook</label>
+      <label for="notepad">Laborbuch</label>
       <textarea id="notepad" readonly></textarea>
     </div>
 
@@ -321,8 +181,9 @@
     </div>
 
     <div id="action-container">
-      <button id="btn-program" class="program-btn" onclick="startProgramming()">Program a Command</button>
-      
+      <button id="btn-program" class="program-btn" onclick="startProgramming()">Kommando programmieren</button>
+      <button id="btn-reflect" class="program-btn reflect-btn" onclick="promptForReflection()">Reflexion hinzufügen</button>
+
       <div id="control-panel" class="hidden">
         <div id="indicator"></div>
         <button class="btn" onclick="setCommand('F')">▲</button>
@@ -362,6 +223,17 @@
     </div>
   </div>
 
+  <div id="modal-overlay" class="hidden">
+    <div id="learning-modal">
+      <h3>Beobachtungsprotokoll</h3>
+      <p>Was haben Sie aus dieser Sequenz gelernt?</p>
+      <textarea id="reflection-input" placeholder="Geben Sie hier Ihre Erkenntnisse ein..."></textarea>
+      <br/>
+      <button class="modal-btn" onclick="submitReflection()">Speichern</button>
+      <button class="modal-btn cancel" onclick="closeReflection()">Schließen</button>
+    </div>
+  </div>
+
   <script>
     /* BigTrak Logic & Phased Interaction */
     let objectsEnabled = false;
@@ -378,13 +250,13 @@
     const bigtrak = document.getElementById('bigtrak');
     const holdBtn = document.getElementById("holdBtn");
     const notepad = document.getElementById("notepad");
-    
+
     let obstacles = [];
     let targets = [];
 
     // Initialize Notepad state
     let pendingLine = "";
-    notepad.value = localStorage.getItem("notepadText") || "Welcome. Awaiting inputs...\n";
+    notepad.value = localStorage.getItem("notepadText") || "Willkommen. Erwarte Eingaben...\n";
     scrollToBottom();
 
     function writeToNotebook(text) {
@@ -399,28 +271,37 @@
 
     function startProgramming() {
       document.getElementById("btn-program").classList.add("hidden");
+      document.getElementById("btn-reflect").classList.add("hidden");
       document.getElementById("control-panel").classList.remove("hidden");
-      writeToNotebook("\n[Planning]: ");
+      writeToNotebook("\n[Planung]: ");
       pendingLine = "";
     }
 
     function handleInputLogging(text) {
-      // Append raw button clicks to the current planning line
-      if (text === "CLR" || text === "CLS" || text === "GO") return; 
+      if (!text) return;
+      const isControlPanelHidden = document.getElementById("control-panel").classList.contains("hidden");
+
+      if (isControlPanelHidden) {
+        writeToNotebook(`\n> Taste gedrückt: ${text}\n`);
+        return;
+      }
+
       if (pendingLine) pendingLine += " ";
       pendingLine += text;
-      
-      // Briefly update the notepad view with the pending command
+
       let lines = notepad.value.split("\n");
-      lines[lines.length - 1] = "[Planning]: " + pendingLine;
+      lines[lines.length - 1] = "[Planung]: " + pendingLine;
       notepad.value = lines.join("\n");
+      localStorage.setItem("notepadText", notepad.value);
       scrollToBottom();
     }
 
-    // Attach logging to buttons
-    document.querySelectorAll("#control-panel .btn").forEach(btn => {
+    document.querySelectorAll(".btn").forEach(btn => {
       btn.addEventListener("click", (e) => {
-        handleInputLogging(e.target.innerText.trim());
+        const text = e.target.innerText.trim();
+        // Ignore specific control buttons to prevent double logging or incorrect phases
+        if (e.target.classList.contains("program-btn") || e.target.classList.contains("modal-btn") || text === "GO") return;
+        handleInputLogging(text);
       });
     });
 
@@ -429,7 +310,6 @@
     function initGameElements() {
       const field = document.getElementById('field');
       if (!objectsEnabled) return;
-      // ... (Obstacle arrays remain unchanged)
       obstacles = [
         {x: 60, y: 60, w: 80, h: 40}, {x: 60, y: 60, w: 40, h: 80},
         {x: 130, y: 240, w: 20, h: 100}, {x: 300, y: 300, w: 200, h: 20},
@@ -513,28 +393,36 @@
 
     function executeCommands() {
       if (currentCommand && currentValue !== "") saveCurrentCommand();
-      
-      // Phase Shift: Hide controls, show program button, log execution start
+
+      // Update planning line with the 'GO' command explicitly before execution begins
+      if (pendingLine) pendingLine += " GO";
+      else pendingLine = "GO";
+
+      let lines = notepad.value.split("\n");
+      lines[lines.length - 1] = "[Planung]: " + pendingLine;
+      notepad.value = lines.join("\n");
+      localStorage.setItem("notepadText", notepad.value);
+
       document.getElementById("control-panel").classList.add("hidden");
       document.getElementById("btn-program").classList.remove("hidden");
-      writeToNotebook("\n[Execution Started]\n");
+      document.getElementById("btn-reflect").classList.remove("hidden");
+      writeToNotebook("\n[Ausführung gestartet]\n");
 
       let index = 0;
 
       function runNext() {
         if (index >= commands.length) {
-            writeToNotebook("[Execution Finished]\n");
+            writeToNotebook("[Ausführung beendet]\n");
             return;
         }
         const cmd = commands[index];
-        
+
         if (cmd.command === 'RPT') {
           const repeatCount = cmd.value;
           const startIndex = Math.max(0, index - repeatCount);
           const segment = commands.slice(startIndex, index);
           commands.splice(index, 1);
           commands.splice(index, 0, ...segment);
-          writeToNotebook(`  > Repeating previous ${repeatCount} step(s)\n`);
           runNext();
         } else {
           runSingleCommand(cmd, () => {
@@ -546,42 +434,55 @@
       runNext();
     }
 
-    // Execute single command and log the observation
     function runSingleCommand(cmd, callback) {
       let description = "";
       switch (cmd.command) {
-        case 'F': 
-          description = `Moved Forward ${cmd.value}`; 
-          moveForward(cmd.value, callback); 
-          break;
-        case 'B': 
-          description = `Moved Backward ${cmd.value}`; 
-          moveBackward(cmd.value, callback); 
-          break;
-        case 'L': 
-          description = `Turned Left ${cmd.value}`; 
-          animateTurn(-cmd.value * 6, callback); 
-          break;
-        case 'R': 
-          description = `Turned Right ${cmd.value}`; 
-          animateTurn(cmd.value * 6, callback); 
-          break;
-        case 'H': 
-          description = `Held position for ${cmd.value}`; 
-          setTimeout(() => callback && callback(), cmd.value * 100); 
-          break;
-        case 'FIRE': 
-          description = `Fired laser ${cmd.value} times`; 
-          fireMultipleTimes(cmd.value, callback); 
-          break;
-        default: 
+        case 'F':
+          description = `Vorwärts gefahren um ${cmd.value}`;
+          moveForward(cmd.value, callback); break;
+        case 'B':
+          description = `Rückwärts gefahren um ${cmd.value}`;
+          moveBackward(cmd.value, callback); break;
+        case 'L':
+          description = `Links gedreht um ${cmd.value}`;
+          animateTurn(-cmd.value * 6, callback); break;
+        case 'R':
+          description = `Rechts gedreht um ${cmd.value}`;
+          animateTurn(cmd.value * 6, callback); break;
+        case 'H':
+          description = `Position gehalten für ${cmd.value}`;
+          setTimeout(() => callback && callback(), cmd.value * 100); break;
+        case 'FIRE':
+          description = `Laser ${cmd.value}-mal abgefeuert`;
+          fireMultipleTimes(cmd.value, callback); break;
+        default:
           if (callback) callback();
       }
-      
+
       if (description) writeToNotebook(`  > ${description}\n`);
     }
 
-    // ... (Movement and collision functions remain unchanged)
+    /* Reflection Modal Functions */
+    function promptForReflection() {
+      const modal = document.getElementById("modal-overlay");
+      const input = document.getElementById("reflection-input");
+      modal.classList.remove("hidden");
+      input.value = "";
+      input.focus();
+    }
+
+    function submitReflection() {
+      const input = document.getElementById("reflection-input").value.trim();
+      if (input) {
+        writeToNotebook(`\n[Reflexion]: ${input}\n`);
+      }
+      closeReflection();
+    }
+
+    function closeReflection() {
+      document.getElementById("modal-overlay").classList.add("hidden");
+    }
+
     function moveForward(units, callback) { animateMovement(units, 'forward', callback); }
     function moveBackward(units, callback) { animateMovement(units, 'backward', callback); }
 
@@ -594,8 +495,7 @@
         function stepPixels() {
           if (doneSteps >= steps) {
             completedUnits++;
-            setTimeout(doOneUnit, 150);
-            return;
+            setTimeout(doOneUnit, 150); return;
           }
           const oldX = x; const oldY = y;
           const sign = (direction === 'forward') ? 1 : -1;
@@ -603,12 +503,9 @@
           x += sign * Math.sin(rad); y -= sign * Math.cos(rad);
           if (checkCollision(x, y)) {
             x = oldX; y = oldY;
-            if (callback) callback();
-            return;
+            if (callback) callback(); return;
           }
-          updatePosition();
-          doneSteps++;
-          setTimeout(stepPixels, 10);
+          updatePosition(); doneSteps++; setTimeout(stepPixels, 10);
         }
         stepPixels();
       }
@@ -620,10 +517,7 @@
       const stepSign = angleDelta > 0 ? 1 : -1;
       function turnOneDegree() {
         if (steps <= 0) { if (callback) callback(); return; }
-        angle += stepSign;
-        updatePosition();
-        steps--;
-        setTimeout(turnOneDegree, 50);
+        angle += stepSign; updatePosition(); steps--; setTimeout(turnOneDegree, 50);
       }
       turnOneDegree();
     }
